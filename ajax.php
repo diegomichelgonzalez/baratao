@@ -1,0 +1,66 @@
+<?php
+  require_once('includes/load.php');
+  if (!$session->isUserLoggedIn(true)) { redirect('index.php', false);}
+?>
+
+<?php
+ // Sugerencia automática
+    $html = '';
+     echo $_POST['product_name'];
+   if(isset($_POST['product_name']) && strlen($_POST['product_name']))
+   {
+     $products = filtrar_producto($_POST['product_name']);
+     if($products){
+        foreach ($products as $product):
+           $html .= "<li class=\"list-group-item\">";
+           $html .= $product['name'];
+           $html .= "</li>";
+         endforeach;
+      } else {
+
+        $html .= '<li onClick=\"fill(\''.addslashes().'\')\" class=\"list-group-item\">';
+        $html .= 'No encontrado';
+        $html .= "</li>";
+
+      }
+
+      echo json_encode($html);
+   }
+ ?>
+ <?php
+ // encontrar todo el producto
+  if(isset($_POST['p_name']) && strlen($_POST['p_name']))
+  {
+    $product_title = remove_junk($db->escape($_POST['p_name']));
+    if($results = find_all_product_info_by_title($product_title)){
+        foreach ($results as $result) {
+
+          $html .= "<tr>";
+
+          $html .= "<td id=\"s_name\">".$result['descripcion']."</td>";
+          $html .= "<input type=\"hidden\" name=\"s_id\" value=\"{$result['id']}\">";
+          $html  .= "<td>";
+          $html  .= "<input type=\"text\" class=\"form-control\" name=\"price\" value=\"{$result['precio_venta_minorista']}\">";
+          $html  .= "</td>";
+          $html .= "<td id=\"s_qty\">";
+          $html .= "<input type=\"text\" class=\"form-control\" name=\"quantity\" value=\"1\">";
+          $html  .= "</td>";
+          $html  .= "<td>";
+          $html  .= "<input type=\"text\" class=\"form-control\" name=\"total\" value=\"{$result['precio_venta_minorista']}\">";
+          $html  .= "</td>";
+          $html  .= "<td>";
+          $html  .= "<input type=\"date\" class=\"form-control datePicker\" name=\"date\" data-date data-date-format=\"yyyy-mm-dd\">";
+          $html  .= "</td>";
+          $html  .= "<td>";
+          $html  .= "<button type=\"submit\" name=\"add_sale\" class=\"btn btn-primary\">Agregar</button>";
+          $html  .= "</td>";
+          $html  .= "</tr>";
+
+        }
+    } else {
+        $html ='<tr><td>El producto no se encuentra registrado en la base de datos</td></tr>';
+    }
+
+    echo json_encode($html);
+  }
+ ?>
